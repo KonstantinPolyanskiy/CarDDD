@@ -56,6 +56,8 @@ public class CartService(ICarRepository cars, ICartRepository carts)
             var sell = car.Sell(car.Price, buyer);
             if (sell.Status is not SellCarAction.Success)
                 return Result<bool>.Failure(Error.Domain(ErrorType.Conflict, "Car selling failed"));
+
+            await cars.UpdateCarAsync(car);
         }
 
         var mark = cart.MarkPurchased();

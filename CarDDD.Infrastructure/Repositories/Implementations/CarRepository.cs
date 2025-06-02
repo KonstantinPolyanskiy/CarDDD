@@ -1,32 +1,42 @@
 using CarDDD.Core.AnswerObjects.Result;
-using CarDDD.Core.DomainObjects;
 using CarDDD.Core.DomainObjects.DomainCar;
 using CarDDD.Core.DtoObjects;
-using CarDDD.Core.EntityObjects;
 using CarDDD.Core.SnapshotModels;
-using CarDDD.Infrastructure.Contexts;
-using Microsoft.EntityFrameworkCore;
+using CarDDD.Infrastructure.Storages;
 using Microsoft.Extensions.Logging;
-using Minio;
-using Minio.DataModel.Args;
 
 namespace CarDDD.Infrastructure.Repositories.Implementations;
 
-public class CarRepository(ApplicationDbContext database, IMinioClient minio, ILogger log) : ICarRepository
+public class CarRepository(ICarStorage cars, IPhotoStorage photos,
+    ILogger log) : ICarRepository
 {
-    private const string Bucket = "PhotoBucket";
     
     public async Task<bool> AddCarAsync(Car car)
     {
         try
         {
-            log.LogInformation("Сохранение машины в репозиторий");
-
-            var carSaved = await SaveCarSnapshotAsync(car);
+            var carSaved = await cars.SaveCarSnapshotAsync(new CarSnapshot
+            {
+                Id = car.EntityId,
+                PhotoId = car.Photo.EntityId,
+                ManagerId = car.ResponsiveManagerId,
+                Brand = car.Brand,
+                Color = car.Color,
+                Price = car.Price,
+                PreviousOwnerName = car.PreviousOwner.Name,
+                Mileage = car.PreviousOwner.Mileage,
+                Condition = car.Condition,
+                IsAvailable = car.IsAvailable,
+            });
             if (!carSaved)
                 return false;
             
-            var photoSaved = await SavePhotoSnapshotAsync(car.Photo);
+            var photoSaved = await photos.SavePhotoSnapshot(new PhotoSnapshot
+            {
+                Id = car.Photo.EntityId,
+                Extension = car.Photo.Extension,
+                Data = car.Photo.Data
+            });
             if (!photoSaved)
                 return false;
             
@@ -45,11 +55,28 @@ public class CarRepository(ApplicationDbContext database, IMinioClient minio, IL
         {
             log.LogInformation("Обновление машины в репозитории");
 
-            var carSaved = await UpdateCarAsync(car);
+            var carSaved = await cars.UpdateCarSnapshot(new CarSnapshot
+            {
+                Id = car.EntityId,
+                PhotoId = car.Photo.EntityId,
+                ManagerId = car.ResponsiveManagerId,
+                Brand = car.Brand,
+                Color = car.Color,
+                Price = car.Price,
+                PreviousOwnerName = car.PreviousOwner.Name,
+                Mileage = car.PreviousOwner.Mileage,
+                Condition = car.Condition,
+                IsAvailable = car.IsAvailable,
+            });
             if (!carSaved)
                 return false;
             
-            var photoSaved = await SavePhotoSnapshotAsync(car.Photo);
+            var photoSaved = await photos.SavePhotoSnapshot(new PhotoSnapshot
+            {
+                Id = car.Photo.EntityId,
+                Extension = car.Photo.Extension,
+                Data = car.Photo.Data
+            });
             if (!photoSaved)
                 return false;
             
@@ -62,18 +89,15 @@ public class CarRepository(ApplicationDbContext database, IMinioClient minio, IL
         }
     }
     
-
     public async Task<Car?> FindByIdAsync(Guid carId)
     {
         try
         {
-            log.LogInformation("Получение машины из репозитория");
-
-            var carSnapshot = await GetCarSnapshotAsync(carId);
+            var carSnapshot = await cars.GetCarSnapshotAsync(carId);
             if (carSnapshot == null)
                 return null;
 
-            var photoSnapshot = await GetPhotoSnapshotAsync((Guid)carSnapshot.PhotoId!);
+            var photoSnapshot = await photos.GetPhotoSnapshot((Guid)carSnapshot.PhotoId!);
 
             return Car.Restore(
                 carSnapshot.Id,
@@ -98,31 +122,17 @@ public class CarRepository(ApplicationDbContext database, IMinioClient minio, IL
     {
         try
         {
-            log.LogInformation("Получение машин из репозитория по параметрам");
+            var carSnapPage = await cars.GetCarSnapshotsAsync(dto);
+            if (carSnapPage == null)
+                return null;
+
+            var domainCars = new List<Car>(carSnapPage.PageSize);
             
-            var q = database.Cars.AsNoTracking()
-                .FilterByBrands(dto.Brands)
-                .FilterByColors(dto.Colors)
-                .FilterByCondition(dto.Condition)
-                .OnlyAvailable(dto.OnlyAvailable);
-
-            var total = await q.CountAsync();
-
-            var page = dto.PageNumber < 1 ? 1 : dto.PageNumber;
-            var size = dto.PageSize   < 1 ? 10 : dto.PageSize;
-
-            var snaps = await q.OrderBy(c => c.Brand)
-                .ThenBy(c => c.Price)
-                .Skip((page - 1) * size)
-                .Take(size)
-                .ToListAsync();
-
-            var cars = new List<Car>(snaps.Count);
-            foreach (var s in snaps)
+            foreach (var s in carSnapPage.Items)
             {
                 PhotoSnapshot? pSnap = s.PhotoId is null
                     ? null
-                    : await GetPhotoSnapshotAsync(s.PhotoId.Value);
+                    : await photos.GetPhotoSnapshot(s.PhotoId.Value);
 
                 var photo = pSnap is null
                     ? Photo.None
@@ -139,177 +149,15 @@ public class CarRepository(ApplicationDbContext database, IMinioClient minio, IL
                     s.IsAvailable,
                     s.ManagerId);
 
-                cars.Add(car);
+                domainCars.Add(car);
             }
 
-            return await PageResult<Car>.CreateAsync(cars.AsQueryable(), total, page);
+            return await PageResult<Car>.CreateAsync(domainCars.AsQueryable(), carSnapPage.PageNumber, carSnapPage.PageSize);
         }
         catch (Exception ex)
         {
             log.LogError(ex, ex.Message);
             return null;
         }
-    }
-
-    #region CarSnapshot
-
-    private async Task<bool> SaveCarSnapshotAsync(Car car)
-    {
-        try
-        {
-            log.LogInformation("Сохранение снимка данных для машины {carId}", car.EntityId);
-            
-            var snapshot = new CarSnapshot
-            {
-                Id = car.EntityId,
-                PhotoId = car.Photo.EntityId,
-                ManagerId = car.ResponsiveManagerId,
-                Brand = car.Brand,
-                Color = car.Color,
-                Price = car.Price,
-                PreviousOwnerName = car.PreviousOwner.Name,
-                Mileage = car.PreviousOwner.Mileage,
-                Condition = car.Condition,
-                IsAvailable = car.IsAvailable,
-            };
-            
-            await database.Cars.AddAsync(snapshot);
-            await database.SaveChangesAsync();
-            
-            return true;
-        }
-        catch (Exception ex)
-        {
-            log.LogError(ex, ex.Message);
-            return false;
-        }
-    }
-
-    private async Task<bool> UpdateCarSnapshotAsync(Car car)
-    {
-        try
-        {
-            log.LogError("Обновление снимка данных для машины {id}", car.EntityId);
-            
-            var snapshot = await database.Cars.FindAsync(car.EntityId);
-            if (snapshot == null)
-                return false;
-            
-            snapshot.Brand = car.Brand;
-            snapshot.Color = car.Color;
-            snapshot.Price = car.Price;
-            
-            snapshot.PhotoId = car.Photo.EntityId;
-            snapshot.ManagerId = car.ResponsiveManagerId;
-            
-            snapshot.PreviousOwnerName = car.PreviousOwner.Name;
-            snapshot.Mileage = car.PreviousOwner.Mileage;
-            snapshot.Condition = car.Condition;
-            snapshot.IsAvailable = car.IsAvailable;
-            
-            await database.SaveChangesAsync();
-            
-            return true;
-        }
-        catch (Exception ex)
-        {
-            log.LogError(ex, ex.Message);
-            return false;
-        }
-    }
-
-    private async Task<CarSnapshot?> GetCarSnapshotAsync(Guid carId)
-    {
-        try
-        {
-            log.LogInformation("Получение снимка данных для машины {id}", carId);
-
-            var snapshot = await database.Cars.FindAsync(carId);
-
-            return snapshot;
-        }
-        catch (Exception ex)
-        {
-            log.LogError(ex, ex.Message);
-            return null;
-        }
-    }
-    
-    #endregion
-
-    #region PhotoSnapshot
-    
-    private async Task<bool> SavePhotoSnapshotAsync(Photo photo)
-    {
-        try
-        {
-            log.LogInformation("Сохранение снимка данных для фото {photoId}", photo.EntityId);
-            
-            await CheckAndCreateBucket(Bucket);
-            
-            await using var ms = new MemoryStream(photo.Data);
-            
-            var args = new PutObjectArgs()
-                .WithBucket(Bucket)
-                .WithObject(photo.EntityId.ToString())
-                .WithStreamData(ms)
-                .WithObjectSize(ms.Length)
-                .WithContentType("image/" + photo.Extension);
-
-            await minio.PutObjectAsync(args);
-            
-            return true;
-        }
-        catch (Exception ex)
-        {
-            log.LogError(ex, ex.Message);
-            return false;
-        }
-    }
-
-    private async Task<PhotoSnapshot?> GetPhotoSnapshotAsync(Guid photoId)
-    {
-        try
-        {
-            log.LogInformation("Получение снимка данных для фото {id}", photoId);
-
-            var stat = await minio.StatObjectAsync(
-                new StatObjectArgs()
-                    .WithBucket(Bucket)
-                    .WithObject(photoId.ToString()));
-
-            stat.MetaData.TryGetValue("x-amz-meta-ext", out var ext);
-            var extension = !string.IsNullOrWhiteSpace(ext)
-                ? ext
-                : stat.ContentType?.Split('/').Last() ?? "bin";
-
-            await using var ms = new MemoryStream();
-            await minio.GetObjectAsync(
-                new GetObjectArgs()
-                    .WithBucket(Bucket)
-                    .WithObject(photoId.ToString())
-                    .WithCallbackStream(async s => await s.CopyToAsync(ms)));
-
-            return new PhotoSnapshot
-            {
-                Id = photoId,
-                Extension = extension,
-                Data = ms.ToArray()
-            };
-        }
-        catch (Exception ex)
-        {
-            log.LogError(ex, ex.Message);
-            return null;
-        }
-    }
-    
-    #endregion
-    
-    private async Task CheckAndCreateBucket(string bucketName)
-    {
-        var exist = await minio.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName));
-        if (exist is false)
-            await minio.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
     }
 }

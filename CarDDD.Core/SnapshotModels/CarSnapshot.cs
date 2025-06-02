@@ -5,7 +5,7 @@ namespace CarDDD.Core.SnapshotModels;
 /// <summary>
 /// Данные сущности Машина в базе данных
 /// </summary>
-public class CarSnapshot()
+public class CarSnapshot
 {
     public Guid Id { get; set; }
     
