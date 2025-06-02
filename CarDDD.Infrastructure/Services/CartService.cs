@@ -21,7 +21,7 @@ public class CartService(ICarRepository cars, ICartRepository carts)
         if (car == null)
             return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Adding car not found"));
 
-        var cartResult = cart.AddCar(new Car(car.EntityId));
+        var cartResult = cart.AddCar(new Car(car.EntityId, car.IsAvailable));
         if (cartResult.Status is not CartAction.Success)
             return Result<bool>.Failure(Error.Domain(ErrorType.Conflict, "Cart adding failed"));
 

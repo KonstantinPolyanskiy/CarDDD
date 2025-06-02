@@ -7,10 +7,11 @@ public enum CartAction
     Success,
     ErrorAlreadyCheckedOut,
     ErrorCarAlreadyAdded,
-    ErrorCarNotInCart
+    ErrorCarNotInCart,
+    ErrorCarNotAvailable,
 }
 
-public record Car(Guid CarId);
+public record Car(Guid CarId, bool IsAvailable = false);
 
 public sealed class Cart : AggregateRoot<Guid>
 {
@@ -24,6 +25,9 @@ public sealed class Cart : AggregateRoot<Guid>
     {
         if (IsCheckedOut)
             return new(CartAction.ErrorAlreadyCheckedOut);
+        
+        if (!car.IsAvailable)
+            return new(CartAction.ErrorCarNotAvailable);
 
         if (!cars.Add(car))
             return new(CartAction.ErrorCarAlreadyAdded);
