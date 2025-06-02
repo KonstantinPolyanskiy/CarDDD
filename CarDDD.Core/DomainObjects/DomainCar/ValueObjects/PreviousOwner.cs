@@ -1,4 +1,4 @@
-namespace CarDDD.Core.DomainObjects.DomainCar;
+namespace CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
 
 public sealed class Ownership
 {

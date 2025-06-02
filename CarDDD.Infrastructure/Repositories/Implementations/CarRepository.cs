@@ -1,5 +1,6 @@
 using CarDDD.Core.AnswerObjects.Result;
 using CarDDD.Core.DomainObjects.DomainCar;
+using CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
 using CarDDD.Core.DtoObjects;
 using CarDDD.Core.SnapshotModels;
 using CarDDD.Infrastructure.Storages;
@@ -18,8 +19,8 @@ public class CarRepository(ICarStorage cars, IPhotoStorage photos,
             var carSaved = await cars.SaveCarSnapshotAsync(new CarSnapshot
             {
                 Id = car.EntityId,
-                PhotoId = car.Photo.EntityId,
-                ManagerId = car.ResponsiveManagerId,
+                PhotoId = car.Photo.Id,
+                ManagerId = car.Manager.Id,
                 Brand = car.Brand,
                 Color = car.Color,
                 Price = car.Price,
@@ -30,15 +31,18 @@ public class CarRepository(ICarStorage cars, IPhotoStorage photos,
             });
             if (!carSaved)
                 return false;
-            
-            var photoSaved = await photos.SavePhotoSnapshot(new PhotoSnapshot
+
+            if (car.Photo.Id != null)
             {
-                Id = car.Photo.EntityId,
-                Extension = car.Photo.Extension,
-                Data = car.Photo.Data
-            });
-            if (!photoSaved)
-                return false;
+                var photoSaved = await photos.SavePhotoSnapshot(new PhotoSnapshot
+                {
+                    Id = (Guid)car.Photo.Id,
+                    Extension = car.Photo.Extension,
+                    Data = car.Photo.Data
+                });
+                if (!photoSaved)
+                    return false;
+            }
             
             return true;
         }
@@ -58,8 +62,8 @@ public class CarRepository(ICarStorage cars, IPhotoStorage photos,
             var carSaved = await cars.UpdateCarSnapshot(new CarSnapshot
             {
                 Id = car.EntityId,
-                PhotoId = car.Photo.EntityId,
-                ManagerId = car.ResponsiveManagerId,
+                PhotoId = car.Photo.Id,
+                ManagerId = car.Manager.Id,
                 Brand = car.Brand,
                 Color = car.Color,
                 Price = car.Price,
@@ -70,15 +74,18 @@ public class CarRepository(ICarStorage cars, IPhotoStorage photos,
             });
             if (!carSaved)
                 return false;
-            
-            var photoSaved = await photos.SavePhotoSnapshot(new PhotoSnapshot
+
+            if (car.Photo.Id != null)
             {
-                Id = car.Photo.EntityId,
-                Extension = car.Photo.Extension,
-                Data = car.Photo.Data
-            });
-            if (!photoSaved)
-                return false;
+                var photoSaved = await photos.SavePhotoSnapshot(new PhotoSnapshot
+                {
+                    Id = (Guid)car.Photo.Id,
+                    Extension = car.Photo.Extension,
+                    Data = car.Photo.Data
+                });
+                if (!photoSaved)
+                    return false;
+            }
             
             return true;
         }

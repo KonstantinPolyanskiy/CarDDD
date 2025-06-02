@@ -1,9 +1,8 @@
-using CarDDD.Core.EntityObjects;
+namespace CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
 
-namespace CarDDD.Core.DomainObjects.DomainCar;
-
-public sealed class Photo : Entity<Guid>
+public sealed class Photo
 {
+    public Guid? Id { get; private init; }
     public bool Attached()
     {
         if (string.IsNullOrEmpty(Extension) || Data.Length == 0)
@@ -12,10 +11,10 @@ public sealed class Photo : Entity<Guid>
         return true;
     }
     public string Extension { get; private init; } = string.Empty;
-    public byte[] Data { get; init; } = [];
+    public byte[] Data { get; private init; } = [];
     
     public static Photo From(string ext, byte[] data) => new() 
-        { Extension = ext, Data = data };
+        { Id = Guid.NewGuid(), Extension = ext, Data = data };
     
-    public static Photo None => new();
+    public static Photo None => new() {Id = null};
 }

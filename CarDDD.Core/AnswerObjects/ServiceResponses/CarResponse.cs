@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Drawing;
 using CarDDD.Core.DomainObjects;
 using CarDDD.Core.DomainObjects.DomainCar;
+using CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
 
 namespace CarDDD.Core.AnswerObjects.ServiceResponses;
 

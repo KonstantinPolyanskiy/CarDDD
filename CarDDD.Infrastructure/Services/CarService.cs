@@ -5,6 +5,8 @@ using CarDDD.Core.DomainEvents;
 using CarDDD.Core.DomainObjects;
 using CarDDD.Core.DomainObjects.DomainCar;
 using CarDDD.Core.DomainObjects.DomainCar.Actions;
+using CarDDD.Core.DomainObjects.DomainCar.EntityObjects;
+using CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
 using CarDDD.Core.DtoObjects;
 using CarDDD.Infrastructure.EventDispatchers.DomainDispatchers;
 using CarDDD.Infrastructure.Repositories;
@@ -77,6 +79,32 @@ public class CarService(ICarRepository cars, IDomainEventDispatcher dispatcher)
         var car = await cars.FindByIdAsync(carId);
         if (car is null)
             return Result<CarInfo>.Failure(Error.Application(ErrorType.NotFound, "No car"));
+        
+        return Result<CarInfo>.Success(new CarInfo(car));
+    }
+
+    public async Task<Result<CarInfo>> ChangeCarManagerAsync(Guid carId, Guid newManagerId, ClaimsPrincipal user)
+    {
+        var car = await cars.FindByIdAsync(carId);
+        if (car is null)
+            return Result<CarInfo>.Failure(Error.Application(ErrorType.NotFound, "No car"));
+
+        var newManager = Employer.From(newManagerId, [Role.CarManager]);
+        
+        var admin = Employer.From(
+            Guid.Parse(user.FindFirst(ClaimTypes.NameIdentifier).Value),
+            [Role.CarAdmin]);
+
+        var change = car.ChangeManager(newManager, admin);
+        if (change.Status is not UpdateCarAction.Success)
+            return Result<CarInfo>.Failure(Error.Domain(ErrorType.Conflict, "Car manager not updated"));
+        
+        var saved = await cars.UpdateCarAsync(car);
+        if (!saved)
+            return Result<CarInfo>.Failure(Error.Application(ErrorType.Unknown, "Car not updated"));
+        
+        await dispatcher.DispatchAsync(car.DomainEvents);
+        car.ClearAllDomainEvents();
         
         return Result<CarInfo>.Success(new CarInfo(car));
     }

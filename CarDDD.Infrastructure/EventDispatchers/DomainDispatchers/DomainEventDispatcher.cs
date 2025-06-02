@@ -2,7 +2,7 @@
 
 namespace CarDDD.Infrastructure.EventDispatchers.DomainDispatchers;
 
-public sealed class DomainEventDispatcher(IServiceProvider sp)
+public sealed class DomainEventDispatcher(IServiceProvider sp) : IDomainEventDispatcher
 {
     public async Task DispatchAsync(
         IEnumerable<CarDDD.Core.DomainEvents.IDomainEvent> events,

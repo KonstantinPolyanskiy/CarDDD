@@ -1,15 +1,20 @@
 ﻿using System.Security.Claims;
 using CarDDD.Core.AnswerObjects.Result;
+using CarDDD.Core.DomainObjects.CommonValueObjects;
 using CarDDD.Core.DomainObjects.DomainCar;
 using CarDDD.Core.DomainObjects.DomainCar.Actions;
+using CarDDD.Core.DomainObjects.DomainCar.EntityObjects;
 using CarDDD.Core.DomainObjects.DomainCart;
+using CarDDD.Core.DomainObjects.DomainCart.Actions;
+using CarDDD.Core.EntityObjects;
+using CarDDD.Infrastructure.EventDispatchers.DomainDispatchers;
 using CarDDD.Infrastructure.Repositories;
 using Car = CarDDD.Core.DomainObjects.DomainCart.Car;
 
 namespace CarDDD.Infrastructure.Services;
 
 //TODO: все заменить на claims пользователя
-public class CartService(ICarRepository cars, ICartRepository carts)
+public class CartService(ICarRepository cars, ICartRepository carts, IDomainEventDispatcher dispatcher)
 {
     public async Task<Result<bool>> AddCarAsync(Guid carId, ClaimsPrincipal user)
     {
@@ -21,7 +26,7 @@ public class CartService(ICarRepository cars, ICartRepository carts)
         if (car == null)
             return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Adding car not found"));
 
-        var cartResult = cart.AddCar(new Car(car.EntityId, car.IsAvailable));
+        var cartResult = cart.AddCar(new Car(CarId.From(car.EntityId), car.IsAvailable));
         if (cartResult.Status is not CartAction.Success)
             return Result<bool>.Failure(Error.Domain(ErrorType.Conflict, "Cart adding failed"));
 
@@ -34,7 +39,7 @@ public class CartService(ICarRepository cars, ICartRepository carts)
         if (cart == null)
             return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Cart not found"));
 
-        var cartResult = cart.RemoveCar(new Car(carId));
+        var cartResult = cart.RemoveCar(new Car(CarId.From(carId)));
         if (cartResult.Status is not CartAction.Success)
             return Result<bool>.Failure(Error.Domain(ErrorType.Conflict, "Cart removing failed"));
         
@@ -43,13 +48,13 @@ public class CartService(ICarRepository cars, ICartRepository carts)
 
     public async Task<Result<bool>> PurchaseAsync(Consumer buyer)
     {
-        var cart = await carts.GetByIdAsync(buyer.Id);
+        var cart = await carts.GetByIdAsync(buyer.EntityId);
         if (cart is null)
             return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Cart not found"));
 
         foreach (var cartCar in cart.Cars)
         {
-            var car = await cars.FindByIdAsync(cartCar.CarId); 
+            var car = await cars.FindByIdAsync(cartCar.CarId.Value); 
             if (car == null)
                 return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Car not found"));
             
@@ -60,9 +65,12 @@ public class CartService(ICarRepository cars, ICartRepository carts)
             await cars.UpdateCarAsync(car);
         }
 
-        var mark = cart.MarkPurchased();
+        var mark = cart.MarkPurchased(ConsumerId.From(buyer.EntityId));
         if (mark.Status is not CartAction.Success)
             return Result<bool>.Failure(Error.Domain(ErrorType.Conflict, "Car marking as sold failed"));
+        
+        await dispatcher.DispatchAsync(cart.DomainEvents);
+        cart.ClearAllDomainEvents();
 
         return Result<bool>.Success(true);
     }

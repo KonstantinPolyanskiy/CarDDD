@@ -1,4 +1,5 @@
 using CarDDD.Core.DomainObjects.DomainCar;
+using CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
 
 namespace CarDDD.Core.DtoObjects;
 

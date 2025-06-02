@@ -1,4 +1,6 @@
-﻿namespace CarDDD.Core.DomainObjects.DomainCart.Results;
+﻿using CarDDD.Core.DomainObjects.DomainCart.Actions;
+
+namespace CarDDD.Core.DomainObjects.DomainCart.Results;
 
 public record AddCarToCartResult(CartAction Status);
 

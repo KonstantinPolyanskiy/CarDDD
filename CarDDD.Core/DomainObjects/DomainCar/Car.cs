@@ -1,8 +1,19 @@
+using CarDDD.Core.DomainObjects.CommonValueObjects;
 using CarDDD.Core.DomainObjects.DomainCar.Actions;
+using CarDDD.Core.DomainObjects.DomainCar.EntityObjects;
 using CarDDD.Core.DomainObjects.DomainCar.Events;
 using CarDDD.Core.DomainObjects.DomainCar.Results;
+using CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
+using CarDDD.Core.EntityObjects;
 
 namespace CarDDD.Core.DomainObjects.DomainCar;
+
+public record Manager
+{
+    public Guid Id { get; private init; }
+
+    public static Manager From(Guid id) => new() { Id = id };
+}
 
 public sealed class Car : AggregateRoot<Guid>
 {
@@ -15,8 +26,8 @@ public sealed class Car : AggregateRoot<Guid>
     public Ownership PreviousOwner { get; private set; } = Ownership.None;
     public Photo Photo { get; private set; } = Photo.None;
     
-    public Guid ResponsiveManagerId { get; private set; }
-    
+    public Manager Manager { get; private set; } = null!;
+
     public bool IsAvailable { get; private set; }
 
     public static CreateCarResult Create(
@@ -37,14 +48,14 @@ public sealed class Car : AggregateRoot<Guid>
         car.Price = price;
         car.PreviousOwner = previousOwner;
         car.Photo = photo;
-        car.ResponsiveManagerId = manager.EntityId;
+        car.Manager = Manager.From(manager.EntityId);
         
         car.IsAvailable = true;
         
         car.CalculateCondition();
 
         if (!photo.Attached())
-            car.AddDomainEvent(new CreatedWithoutPhoto(car.EntityId, manager.EntityId));
+            car.AddDomainEvent(new CreatedWithoutPhoto(CarId.From(car.EntityId), Manager.From(manager.EntityId)));
 
         return new CreateCarResult(CreateCarAction.Success, car);
     }
@@ -68,7 +79,10 @@ public sealed class Car : AggregateRoot<Guid>
         if (!ItAdmin(admin))
             return new UpdateCarResult(UpdateCarAction.ErrorEnoughPermission);
         
-        ResponsiveManagerId = newManager.EntityId;
+        Manager previousManager = Manager.From(Manager.Id);
+        Manager = Manager.From(newManager.EntityId);
+        
+        AddDomainEvent(new CarManagerChanged(CarId.From(EntityId), Manager, previousManager));
         
         return new UpdateCarResult(UpdateCarAction.Success);
     }
@@ -90,7 +104,7 @@ public sealed class Car : AggregateRoot<Guid>
         
         IsAvailable = false;
         
-        AddDomainEvent(new CarSold(EntityId, ResponsiveManagerId, consumer.Id));
+        AddDomainEvent(new CarSold(CarId.From(EntityId), Manager, consumer));
         
         return new SellCarResult(SellCarAction.Success);
     }
@@ -115,7 +129,7 @@ public sealed class Car : AggregateRoot<Guid>
             Condition = condition,
             PreviousOwner = previousOwner,
             Photo = photo,
-            ResponsiveManagerId = responsiveManagerId,
+            Manager = Manager.From(responsiveManagerId),
             IsAvailable = isAvailable
         };
 
@@ -135,7 +149,7 @@ public sealed class Car : AggregateRoot<Guid>
         if (manager.Roles.Contains(Role.CarAdmin))
             return true;
         
-        if (ResponsiveManagerId == manager.EntityId)
+        if (Manager.Id == manager.EntityId)
             return true;
         
         return false;

@@ -1,17 +1,14 @@
-﻿using CarDDD.Core.DomainObjects.DomainCart.Results;
+﻿using System.Collections.Immutable;
+using CarDDD.Core.DomainObjects.CommonValueObjects;
+using CarDDD.Core.DomainObjects.DomainCart.Actions;
+using CarDDD.Core.DomainObjects.DomainCart.Events;
+using CarDDD.Core.DomainObjects.DomainCart.Results;
+using CarDDD.Core.EntityObjects;
 
 namespace CarDDD.Core.DomainObjects.DomainCart;
 
-public enum CartAction
-{
-    Success,
-    ErrorAlreadyCheckedOut,
-    ErrorCarAlreadyAdded,
-    ErrorCarNotInCart,
-    ErrorCarNotAvailable,
-}
+public record Car(CarId CarId, bool IsAvailable = false);
 
-public record Car(Guid CarId, bool IsAvailable = false);
 
 public sealed class Cart : AggregateRoot<Guid>
 {
@@ -46,12 +43,16 @@ public sealed class Cart : AggregateRoot<Guid>
         return new(CartAction.Success);
     }
     
-    public PurchaseCartResult MarkPurchased()
+    public PurchaseCartResult MarkPurchased(ConsumerId purchaserId)
     {
         if (IsCheckedOut)
             return new(CartAction.ErrorAlreadyCheckedOut);
+        
+        AddDomainEvent(new CartOrdered(PurchasedCarIds, purchaserId));
 
         IsCheckedOut = true;
         return new(CartAction.Success);
     }
+    
+    private IReadOnlyList<CarId> PurchasedCarIds => Cars.Select(x => x.CarId).ToList();
 }
