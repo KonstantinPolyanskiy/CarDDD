@@ -10,31 +10,33 @@ public enum CartAction
     ErrorCarNotInCart
 }
 
+public record Car(Guid CarId);
+
 public sealed class Cart : AggregateRoot<Guid>
 {
-    private readonly HashSet<Guid> _carIds = new();
-    public IReadOnlyCollection<Guid> CarIds => _carIds;
+    private readonly HashSet<Car> cars = new();
+    public IReadOnlyCollection<Car> Cars => cars;
     public bool IsCheckedOut { get; private set; }
     
     public static Cart Create() => new() { IsCheckedOut = false };
     
-    public AddCarToCartResult AddCar(Guid carId)
+    public AddCarToCartResult AddCar(Car car)
     {
         if (IsCheckedOut)
             return new(CartAction.ErrorAlreadyCheckedOut);
 
-        if (!_carIds.Add(carId))
+        if (!cars.Add(car))
             return new(CartAction.ErrorCarAlreadyAdded);
 
         return new(CartAction.Success);
     }
     
-    public RemoveCarFromCartResult RemoveCar(Guid carId)
+    public RemoveCarFromCartResult RemoveCar(Car car)
     {
         if (IsCheckedOut)
             return new(CartAction.ErrorAlreadyCheckedOut);
 
-        if (!_carIds.Remove(carId))
+        if (!cars.Remove(car))
             return new(CartAction.ErrorCarNotInCart);
 
         return new(CartAction.Success);
@@ -48,5 +50,4 @@ public sealed class Cart : AggregateRoot<Guid>
         IsCheckedOut = true;
         return new(CartAction.Success);
     }
-    
 }

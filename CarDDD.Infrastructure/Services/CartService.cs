@@ -4,6 +4,7 @@ using CarDDD.Core.DomainObjects.DomainCar;
 using CarDDD.Core.DomainObjects.DomainCar.Actions;
 using CarDDD.Core.DomainObjects.DomainCart;
 using CarDDD.Infrastructure.Repositories;
+using Car = CarDDD.Core.DomainObjects.DomainCart.Car;
 
 namespace CarDDD.Infrastructure.Services;
 
@@ -20,7 +21,7 @@ public class CartService(ICarRepository cars, ICartRepository carts)
         if (car == null)
             return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Adding car not found"));
 
-        var cartResult = cart.AddCar(car.EntityId);
+        var cartResult = cart.AddCar(new Car(car.EntityId));
         if (cartResult.Status is not CartAction.Success)
             return Result<bool>.Failure(Error.Domain(ErrorType.Conflict, "Cart adding failed"));
 
@@ -33,7 +34,7 @@ public class CartService(ICarRepository cars, ICartRepository carts)
         if (cart == null)
             return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Cart not found"));
 
-        var cartResult = cart.RemoveCar(carId);
+        var cartResult = cart.RemoveCar(new Car(carId));
         if (cartResult.Status is not CartAction.Success)
             return Result<bool>.Failure(Error.Domain(ErrorType.Conflict, "Cart removing failed"));
         
@@ -46,9 +47,9 @@ public class CartService(ICarRepository cars, ICartRepository carts)
         if (cart is null)
             return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Cart not found"));
 
-        foreach (var carId in cart.CarIds)
+        foreach (var cartCar in cart.Cars)
         {
-            var car = await cars.FindByIdAsync(carId); 
+            var car = await cars.FindByIdAsync(cartCar.CarId); 
             if (car == null)
                 return Result<bool>.Failure(Error.Application(ErrorType.NotFound, "Car not found"));
             
