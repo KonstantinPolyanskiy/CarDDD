@@ -1,6 +1,7 @@
 namespace CarDDD.Core.DtoObjects;
 
-public class PhotoDto
+public record AddCarPhotoDto
 {
-    
+    public required string Extension { get; init; }
+    public required byte[] Data { get; init; }
 }

@@ -5,21 +5,21 @@ namespace CarDDD.Core.SnapshotModels;
 /// <summary>
 /// Данные сущности Машина в базе данных
 /// </summary>
-public class CarSnapshotModel()
+public class CarSnapshot()
 {
-    public Guid Id { get; init; }
+    public Guid Id { get; set; }
     
-    public Guid? PhotoId { get; init; }
+    public Guid? PhotoId { get; set; }
     
-    public Guid ManagerId { get; init; }
+    public Guid ManagerId { get; set; }
     
-    public string Brand { get; init; } = string.Empty;
-    public string Color { get; init; } = string.Empty;
-    public decimal Price { get; init; }
+    public string Brand { get; set; } = string.Empty;
+    public string Color { get; set; } = string.Empty;
+    public decimal Price { get; set; }
     
-    public string? PreviousOwnerName { get; init; }
-    public int? Mileage { get; init; }
+    public string PreviousOwnerName { get; set; }
+    public int Mileage { get; set; }
     
-    public Condition Condition { get; init; } 
-    public bool IsAvailable { get; init; }
+    public Condition Condition { get; set; } 
+    public bool IsAvailable { get; set; }
 }

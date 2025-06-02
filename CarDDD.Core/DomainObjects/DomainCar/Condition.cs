@@ -1,6 +1,8 @@
 namespace CarDDD.Core.DomainObjects.DomainCar;
 
-public class Condition
+public enum Condition
 {
-    
+    New,
+    Used,
+    NotWorking
 }

@@ -1,6 +1,6 @@
 namespace CarDDD.Core.AnswerObjects.ServiceResponses;
 
-public class CarResponse
+public class CarInfo
 {
     
 }

@@ -1,6 +1,7 @@
 namespace CarDDD.Core.DtoObjects;
 
-public class OwnershipDto
+public record PreviousOwnerDto
 {
-    
+    public required string Name { get; init; }
+    public required int Mileage { get; init; }
 }

@@ -1,6 +1,6 @@
 namespace CarDDD.Core.SnapshotModels;
 
-public class PhotoSnapshoteModel
+public class PhotoSnapshot
 {
     public Guid Id { get; set; }
     

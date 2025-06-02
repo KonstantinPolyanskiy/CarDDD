@@ -1,6 +1,8 @@
 namespace CarDDD.Core.DomainObjects;
 
-public class Role
+public enum Role
 {
-    
+    CarManager,
+    CarConsumer,
+    CarAdmin,
 }

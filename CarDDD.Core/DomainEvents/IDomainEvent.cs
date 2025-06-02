@@ -1,6 +1,6 @@
 namespace CarDDD.Core.DomainEvents;
 
-public class IDomainEvent
+public interface IDomainEvent
 {
-    
+    DateTime OccurredOn { get; }
 }

@@ -1,6 +1,9 @@
+using CarDDD.Core.DomainObjects.DomainCar.Actions;
+
 namespace CarDDD.Core.DomainObjects.DomainCar.Results;
 
-public class CarResults
-{
-    
-}
+public record CreateCarResult(CreateCarAction Status, Car? Car = null);
+
+public record UpdateCarResult(UpdateCarAction Status);
+
+public record SellCarResult(SellCarAction Status);
