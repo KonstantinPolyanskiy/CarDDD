@@ -1,8 +1,11 @@
+using CarDDD.Core.AnswerObjects.Result;
 using CarDDD.Core.DomainObjects;
 using CarDDD.Core.DomainObjects.DomainCar;
+using CarDDD.Core.DtoObjects;
 using CarDDD.Core.EntityObjects;
 using CarDDD.Core.SnapshotModels;
 using CarDDD.Infrastructure.Contexts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Minio;
 using Minio.DataModel.Args;
@@ -83,6 +86,63 @@ public class CarRepository(ApplicationDbContext database, IMinioClient minio, IL
                 carSnapshot.IsAvailable,
                 carSnapshot.ManagerId
             );
+        }
+        catch (Exception ex)
+        {
+            log.LogError(ex, ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<PageResult<Car>?> FindByParams(SearchCarDto dto)
+    {
+        try
+        {
+            log.LogInformation("Получение машин из репозитория по параметрам");
+            
+            var q = database.Cars.AsNoTracking()
+                .FilterByBrands(dto.Brands)
+                .FilterByColors(dto.Colors)
+                .FilterByCondition(dto.Condition)
+                .OnlyAvailable(dto.OnlyAvailable);
+
+            var total = await q.CountAsync();
+
+            var page = dto.PageNumber < 1 ? 1 : dto.PageNumber;
+            var size = dto.PageSize   < 1 ? 10 : dto.PageSize;
+
+            var snaps = await q.OrderBy(c => c.Brand)
+                .ThenBy(c => c.Price)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .ToListAsync();
+
+            var cars = new List<Car>(snaps.Count);
+            foreach (var s in snaps)
+            {
+                PhotoSnapshot? pSnap = s.PhotoId is null
+                    ? null
+                    : await GetPhotoSnapshotAsync(s.PhotoId.Value);
+
+                var photo = pSnap is null
+                    ? Photo.None
+                    : Photo.From(pSnap.Extension, pSnap.Data);
+
+                var car = Car.Restore(
+                    s.Id,
+                    s.Brand,
+                    s.Color,
+                    s.Price,
+                    s.Condition,
+                    Ownership.PreviousOwnership(s.PreviousOwnerName, s.Mileage),
+                    photo,
+                    s.IsAvailable,
+                    s.ManagerId);
+
+                cars.Add(car);
+            }
+
+            return await PageResult<Car>.CreateAsync(cars.AsQueryable(), total, page);
         }
         catch (Exception ex)
         {
