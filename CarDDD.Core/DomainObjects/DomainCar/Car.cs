@@ -15,6 +15,9 @@ public record Manager
     public static Manager From(Guid id) => new() { Id = id };
 }
 
+/// <summary>
+/// Доменная модель машины
+/// </summary>
 public sealed class Car : AggregateRoot<Guid>
 {
     public string Brand { get; private set; } = string.Empty;
@@ -41,7 +44,7 @@ public sealed class Car : AggregateRoot<Guid>
         var car = new Car();
         
         if (car.Price <= 0)
-            return new CreateCarResult(CreateCarAction.ErrorInvalidPrice);
+            return new CreateCarResult(CreateCarAction.ErrorInvalidPrice, EmptyCar);
         
         car.Brand = brand;
         car.Color = color;
@@ -157,4 +160,6 @@ public sealed class Car : AggregateRoot<Guid>
 
     private bool ItAdmin(Employer employer) =>
         employer.Roles.Contains(Role.CarAdmin);
+    
+    private static Car EmptyCar => new Car();
 }

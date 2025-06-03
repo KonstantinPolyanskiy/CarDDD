@@ -2,7 +2,6 @@
 using CarDDD.Core.AnswerObjects.Result;
 using CarDDD.Core.DomainObjects.DomainCar;
 using CarDDD.Core.DtoObjects;
-using CarDDD.Core.SnapshotModels;
 
 namespace CarDDD.Infrastructure.Repositories;
 

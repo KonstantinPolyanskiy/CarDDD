@@ -1,7 +1,7 @@
 ﻿using CarDDD.Core.AnswerObjects.Result;
 using CarDDD.Core.DtoObjects;
-using CarDDD.Core.SnapshotModels;
 using CarDDD.Infrastructure.Contexts;
+using CarDDD.Infrastructure.Models.SnapshotModels;
 using CarDDD.Infrastructure.Repositories.Implementations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

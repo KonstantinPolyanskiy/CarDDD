@@ -1,7 +1,7 @@
+using CarDDD.Contracts.EmailContracts.EmailNotifications;
 using CarDDD.Core.DomainEvents;
 using CarDDD.Core.DomainObjects.DomainCart.Events;
-using CarDDD.Core.IntegrationEvents;
-using CarDDD.Core.SnapshotModels;
+using CarDDD.Infrastructure.Models.SnapshotModels;
 using CarDDD.Infrastructure.Publisher;
 using CarDDD.Infrastructure.Storages;
 
@@ -22,16 +22,16 @@ public sealed class CartOrderedHandler(IIntegrationPublisher publisher, ICarStor
         await publisher.PublishAsync(CreateEmployerMessage(carSnaps!, price, count));
     }
 
-    private ConsumerOrderedCartInfoMessage CreateConsumerMessage(decimal price, int count)
+    private ConsumerOrderedCartInfoEmailNotification CreateConsumerMessage(decimal price, int count)
     {
-        return new ConsumerOrderedCartInfoMessage(
+        return new ConsumerOrderedCartInfoEmailNotification(
         "purchaser@mail.com",
         "Кто ктотович",
         price,
         count);
     }
 
-    private EmployerOrderedCartInfoMessage CreateEmployerMessage(CarSnapshot[] carSnapshots, decimal price, int count)
+    private EmployerOrderedCartInfoEmailNotification CreateEmployerMessage(CarSnapshot[] carSnapshots, decimal price, int count)
     {
 
         var byManager = carSnapshots
@@ -39,7 +39,7 @@ public sealed class CartOrderedHandler(IIntegrationPublisher publisher, ICarStor
             .Select(g => new ManagerOrderedCars(g.Key, g.Select(x => x.Id).ToList()))
             .ToList();
 
-        return new EmployerOrderedCartInfoMessage(
+        return new EmployerOrderedCartInfoEmailNotification(
            "admin@mail.com",
            "кто то ктотович",
            price,

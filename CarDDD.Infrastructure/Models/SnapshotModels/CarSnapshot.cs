@@ -1,10 +1,9 @@
-using CarDDD.Core.DomainObjects.DomainCar;
 using CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
 
-namespace CarDDD.Core.SnapshotModels;
+namespace CarDDD.Infrastructure.Models.SnapshotModels;
 
 /// <summary>
-/// Данные сущности Машина в базе данных
+/// Таблица Машина в БД
 /// </summary>
 public class CarSnapshot
 {

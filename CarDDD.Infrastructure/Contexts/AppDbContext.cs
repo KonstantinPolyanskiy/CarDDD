@@ -1,4 +1,4 @@
-using CarDDD.Core.SnapshotModels;
+using CarDDD.Infrastructure.Models.SnapshotModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

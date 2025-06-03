@@ -23,4 +23,7 @@ public sealed record Error(ErrorLayer Layer, ErrorType Type, string Message)
 
     public static Error Domain(ErrorType type, string message) =>
         new(ErrorLayer.Domain, type, message);
+    
+    public static Error Infrastructure(ErrorType type, string message) =>
+        new(ErrorLayer.Infrastructure, type, message);
 }

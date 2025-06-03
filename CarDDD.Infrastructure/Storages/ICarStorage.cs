@@ -1,6 +1,6 @@
 ﻿using CarDDD.Core.AnswerObjects.Result;
 using CarDDD.Core.DtoObjects;
-using CarDDD.Core.SnapshotModels;
+using CarDDD.Infrastructure.Models.SnapshotModels;
 
 namespace CarDDD.Infrastructure.Storages;
 

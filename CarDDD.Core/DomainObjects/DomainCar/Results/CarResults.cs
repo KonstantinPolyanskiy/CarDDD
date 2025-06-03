@@ -2,7 +2,7 @@ using CarDDD.Core.DomainObjects.DomainCar.Actions;
 
 namespace CarDDD.Core.DomainObjects.DomainCar.Results;
 
-public record CreateCarResult(CreateCarAction Status, Car? Car = null);
+public record CreateCarResult(CreateCarAction Status, Car Car);
 
 public record UpdateCarResult(UpdateCarAction Status);
 

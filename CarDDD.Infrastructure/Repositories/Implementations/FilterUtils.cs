@@ -1,7 +1,7 @@
 ﻿using CarDDD.Core.DomainObjects.DomainCar;
 using CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
 using CarDDD.Core.DtoObjects;
-using CarDDD.Core.SnapshotModels;
+using CarDDD.Infrastructure.Models.SnapshotModels;
 
 namespace CarDDD.Infrastructure.Repositories.Implementations;
 

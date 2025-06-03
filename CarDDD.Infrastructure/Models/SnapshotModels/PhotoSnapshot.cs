@@ -1,5 +1,8 @@
-namespace CarDDD.Core.SnapshotModels;
+namespace CarDDD.Infrastructure.Models.SnapshotModels;
 
+/// <summary>
+/// Таблица Фото в БД
+/// </summary>
 public class PhotoSnapshot
 {
     public Guid Id { get; set; }

@@ -1,5 +1,4 @@
 ﻿using CarDDD.Core.AnswerObjects.Result;
-using CarDDD.Core.IntegrationEvents;
 
 namespace CarDDD.Infrastructure.Publisher;
 
