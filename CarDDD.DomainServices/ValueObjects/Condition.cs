@@ -1,4 +1,4 @@
-namespace CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
+namespace CarDDD.DomainServices.ValueObjects;
 
 public enum Condition
 {

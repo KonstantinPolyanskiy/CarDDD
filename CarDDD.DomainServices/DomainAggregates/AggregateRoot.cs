@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
-using CarDDD.Core.DomainEvents;
-using CarDDD.Core.EntityObjects;
+using CarDDD.DomainServices.BaseDomainEvents;
+using CarDDD.DomainServices.EntityObjects;
 
-namespace CarDDD.Core.DomainObjects;
+namespace CarDDD.DomainServices.DomainAggregates;
 
 public abstract class AggregateRoot<TId> : Entity<TId>
 {

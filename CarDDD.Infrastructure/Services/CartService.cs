@@ -46,7 +46,7 @@ public class CartService(ICarRepository cars, ICartRepository carts, IDomainEven
         return Result<bool>.Success(true);
     }
 
-    public async Task<Result<bool>> PurchaseAsync(Consumer buyer)
+    public async Task<Result<bool>> PurchaseAsync(Customer buyer)
     {
         var cart = await carts.GetByIdAsync(buyer.EntityId);
         if (cart is null)
@@ -65,7 +65,7 @@ public class CartService(ICarRepository cars, ICartRepository carts, IDomainEven
             await cars.UpdateCarAsync(car);
         }
 
-        var mark = cart.MarkPurchased(ConsumerId.From(buyer.EntityId));
+        var mark = cart.MarkPurchased(CustomerId.From(buyer.EntityId));
         if (mark.Status is not CartAction.Success)
             return Result<bool>.Failure(Error.Domain(ErrorType.Conflict, "Car marking as sold failed"));
         

@@ -1,4 +1,4 @@
-namespace CarDDD.Core.DomainObjects;
+namespace CarDDD.DomainServices.ValueObjects;
 
 public enum Role
 {
