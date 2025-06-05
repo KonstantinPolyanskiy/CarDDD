@@ -139,6 +139,31 @@ public sealed class Cart : AggregateRoot<Guid>
         return new PurchaseCartResult(PurchaseCartAction.Success);
     }
     
+    public static Cart Restore(
+        Guid id,
+        IEnumerable<CarId> cars,
+        CustomerId cartOwnerId,
+        bool ordered,
+        bool readyForPurchase,
+        bool purchased)
+    {
+        var cart = new Cart
+        {
+            EntityId = id,
+            CartOwnerId = cartOwnerId,
+            Ordered = ordered,
+            ReadyForPurchase = readyForPurchase,
+            Purchased = purchased,
+        };
+
+        foreach (var carId in cars)
+        {
+            cart._cars.Add(carId);
+        }
+
+        return cart;
+    }
+    
     private IReadOnlyList<CarId> OrderedCars => _cars.Select(car => car).ToList();
     private IReadOnlyList<CarId> PurchasedCars => OrderedCars;
 }

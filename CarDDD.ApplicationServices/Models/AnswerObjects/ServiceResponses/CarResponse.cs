@@ -1,10 +1,8 @@
 using System.Collections.Immutable;
-using System.Drawing;
-using CarDDD.Core.DomainObjects;
-using CarDDD.Core.DomainObjects.DomainCar;
-using CarDDD.Core.DomainObjects.DomainCar.ValueObjects;
+using CarDDD.DomainServices.DomainAggregates.CarAggregate;
+using CarDDD.DomainServices.ValueObjects;
 
-namespace CarDDD.Core.AnswerObjects.ServiceResponses;
+namespace CarDDD.ApplicationServices.Models.AnswerObjects.ServiceResponses;
 
 public record CarInfo
 {
@@ -16,9 +14,10 @@ public record CarInfo
         Brand = car.Brand;
         Color = car.Color;
         Price = car.Price;
+        Mileage = car.Mileage;
+        Condition = car.Condition;
         Condition = car.Condition;
         IsAvailable = car.IsAvailable;
-        PreviousOwnerName = car.PreviousOwner.Name;
         Mileage = car.PreviousOwner.Mileage;
     }
     public Guid? Id { get; set; }

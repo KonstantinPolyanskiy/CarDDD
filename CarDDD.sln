@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.Contracts", "CarDDD.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.DomainServices", "CarDDD.DomainServices\CarDDD.DomainServices.csproj", "{7020B4AA-B463-4B8A-A1E3-AE460871DFCD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.ApplicationServices", "CarDDD.ApplicationServices\CarDDD.ApplicationServices.csproj", "{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{7020B4AA-B463-4B8A-A1E3-AE460871DFCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7020B4AA-B463-4B8A-A1E3-AE460871DFCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7020B4AA-B463-4B8A-A1E3-AE460871DFCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

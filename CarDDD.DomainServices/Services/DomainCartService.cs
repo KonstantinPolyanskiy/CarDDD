@@ -7,7 +7,10 @@ using CarDDD.DomainServices.ValueObjects;
 
 namespace CarDDD.DomainServices.Services;
 
-public class DomainCartService
+/// <summary>
+/// <see cref="ICartDomainService"/>
+/// </summary>
+public class DomainCartService : ICartDomainService
 {
     private static readonly IReadOnlyDictionary<CarId, SellCarResult> EmptySellResults = new Dictionary<CarId, SellCarResult>();
 
@@ -16,22 +19,22 @@ public class DomainCartService
         return Cart.Create(s.Customer);
     }
 
-    public AddCarToCartResult AddToCart(Cart cart, AddCarCartSpec s)
+    public AddCarToCartResult AddCar(Cart cart, AddCarCartSpec s)
     {
         return cart.AddCar(s.CarId);
     }
 
-    public RemoveCarFromCartResult RemoveFromCart(Cart cart, RemoveCarCartSpec s)
+    public RemoveCarFromCartResult RemoveCar(Cart cart, RemoveCarCartSpec s)
     {
         return cart.RemoveCar(s.CarId);
     }
 
-    public OrderCartResult Order(Cart cart)
+    public OrderCartResult OrderCart(Cart cart)
     {
         return cart.Order();
     }
 
-    public CartPurchaseOutcome PurchaseCart(Cart cart, PurchaseCartSpec s)
+    public CartPurchaseResult PurchaseCart(Cart cart, PurchaseCartSpec s)
     {
         var carSells = new Dictionary<CarId, SellCarResult>();
 
@@ -43,16 +46,16 @@ public class DomainCartService
         // Пробуем оплатить корзину
         var purchased = cart.Purchase();
         if (purchased.Status is not PurchaseCartAction.Success)
-            return new CartPurchaseOutcome(purchased, EmptySellResults);
+            return new CartPurchaseResult(purchased, EmptySellResults);
 
         // Корзина успешно оплачена - продаем каждую машину
         foreach (var domainCar in s.CarsToSell)
             carSells[CarId.From(domainCar.EntityId)] = domainCar.Sell(cart.CartOwnerId);
         
-        return new CartPurchaseOutcome(purchased, carSells);
+        return new CartPurchaseResult(purchased, carSells);
     }
 
-    public sealed class CartPurchaseOutcome(
+    public sealed class CartPurchaseResult(
         PurchaseCartResult purchaseResult,
         IReadOnlyDictionary<CarId, SellCarResult> sellResults)
     {
@@ -67,7 +70,7 @@ public class DomainCartService
     /// <summary>
     /// Проверка что переданные <see cref="DomainAggregates.CarAggregate.Car"/> в точности совпадают с <see cref="Cart.Cars"/> по идентификатору 
     /// </summary>
-    private static (CartPurchaseOutcome outcome, bool match) MatchCartCarsWithSaleCars(IReadOnlyList<Car> carsToSale, IReadOnlyList<CarId> cartCars)
+    private static (CartPurchaseResult outcome, bool match) MatchCartCarsWithSaleCars(IReadOnlyList<Car> carsToSale, IReadOnlyList<CarId> cartCars)
     {
         var domainIds = new HashSet<Guid>(carsToSale.Select(dc => dc.EntityId));
         var cartIds = new HashSet<Guid>(cartCars.Select(id => id.Value));
@@ -75,7 +78,7 @@ public class DomainCartService
         if (!domainIds.SetEquals(cartIds))
         {
             return (
-                new CartPurchaseOutcome(
+                new CartPurchaseResult(
                     new PurchaseCartResult(PurchaseCartAction.ErrorCarsMismatch),
                     EmptySellResults
                 ), false

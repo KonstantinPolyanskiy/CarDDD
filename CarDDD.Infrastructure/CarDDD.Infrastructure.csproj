@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CarDDD.ApplicationServices\CarDDD.ApplicationServices.csproj" />
       <ProjectReference Include="..\CarDDD.Contracts\CarDDD.Contracts.csproj" />
-      <ProjectReference Include="..\CarDDD.Core\CarDDD.Core.csproj" />
       <ProjectReference Include="..\CarDDD.Settings\CarDDD.Settings.csproj" />
     </ItemGroup>
 

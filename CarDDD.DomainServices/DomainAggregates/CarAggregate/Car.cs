@@ -229,12 +229,13 @@ public sealed class Car : AggregateRoot<Guid>
         string color,
         decimal price,
         int mileage,
-        Condition condition,
         PhotoId photoId,
         string photoExtension,
         bool isAvailable,
         EmployerId responsiveManagerId)
     {
+        var condition = RestoreCondition(mileage);
+        
         var car = new Car
         {
             EntityId = id.Value,
@@ -262,6 +263,14 @@ public sealed class Car : AggregateRoot<Guid>
         }
         
         Condition = Mileage > 100_000 ? Condition.NotWorking : Condition.Used;
+    }
+    
+    private static Condition RestoreCondition(int mileage)
+    {
+        if (mileage == 0)
+            return Condition.New;
+        
+        return mileage > 100_000 ? Condition.NotWorking : Condition.Used;
     }
 
     private bool ResponsiveManagerOrAdmin(Employer caller)

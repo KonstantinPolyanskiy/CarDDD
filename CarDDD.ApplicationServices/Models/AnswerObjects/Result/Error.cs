@@ -1,4 +1,4 @@
-namespace CarDDD.Core.AnswerObjects.Result;
+namespace CarDDD.ApplicationServices.Models.AnswerObjects.Result;
 
 public enum ErrorLayer
 {

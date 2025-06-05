@@ -4,9 +4,9 @@ using CarDDD.Notifications.Models.Email;
 namespace CarDDD.Notifications.EmailTemplates.HtmlEmailTemplates;
 
 public sealed class CarCreatedWithoutPhotoHtmlTemplate :
-    IEmailTemplate<CarCreatedWithoutPhotoEmailNotification>
+    IEmailTemplate<ManagerCreatedCarWithoutPhotoNotification>
 {
-    public IEmailMessage Create(CarCreatedWithoutPhotoEmailNotification m) =>
+    public IEmailMessage Create(ManagerCreatedCarWithoutPhotoNotification m) =>
         new HtmlEmailMessage(m.To(), "Машина без фотографии", HtmlBody:
              $"""
              <p>{m.ManagerFullName}, сегодня вы добавили машину <b>{m.CarId}</b> без фотографии.</p>

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace CarDDD.Core.AnswerObjects.Result;
+namespace CarDDD.ApplicationServices.Models.AnswerObjects.Result;
 
 /// <summary>
 /// Результат постраничного поиска 

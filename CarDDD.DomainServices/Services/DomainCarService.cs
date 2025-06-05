@@ -5,7 +5,10 @@ using CarDDD.DomainServices.ValueObjects;
 
 namespace CarDDD.DomainServices.Services;
 
-public class DomainCarService
+/// <summary>
+/// <see cref="ICarDomainService"/>
+/// </summary>
+public class DomainCarService : ICarDomainService
 {
     public CreateCarResult CreateCar(CreateCarSpec s)
     {
@@ -30,7 +33,7 @@ public class DomainCarService
         );
     }
 
-    public UpdateCarResult UpdateCarBasicProperties(Car car, UpdateCarSpec s)
+    public UpdateCarResult UpdateCar(Car car, UpdateCarSpec s)
     {
         // Нужно обновить менеджера
         if (s.AssignManagerSpec is not null)

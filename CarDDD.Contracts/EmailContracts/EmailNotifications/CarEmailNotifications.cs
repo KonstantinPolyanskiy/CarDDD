@@ -7,7 +7,7 @@ namespace CarDDD.Contracts.EmailContracts.EmailNotifications;
 /// Email менеджеру, что машина добавлена без фото 
 /// </summary>
 [RabbitRoute(RabbitEmail.NotifyExchange, RabbitEmail.RoutingPrefix + ".emloyer")]
-public record CarCreatedWithoutPhotoEmailNotification(Guid CarId, string ManagerEmail, string ManagerFullName) : IEmailNotification
+public record ManagerCreatedCarWithoutPhotoNotification(Guid CarId, string ManagerEmail, string ManagerFullName) : IEmailNotification
 {
     public string To() => ManagerEmail;
 }

@@ -10,13 +10,7 @@ public sealed record CarCreated(CarId CarId, EmployerId ManagerId, bool HasPhoto
 }
 
 /// <summary> Машина продана </summary>
-public sealed class CarSold(CarId carId, EmployerId ManagerId, CustomerId CustomerId) : IDomainEvent
-{
-    public DateTime OccurredOn { get; } = DateTime.UtcNow;
-}
-
-/// <summary> Машина создана без фото </summary>
-public sealed record CarCreatedWithoutPhoto(CarId CarId, EmployerId ManagerId) : IDomainEvent
+public sealed record CarSold(CarId CarId, EmployerId ManagerId, CustomerId CustomerId) : IDomainEvent
 {
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
@@ -28,7 +22,7 @@ public sealed record CarUpdatedBasisAttributes(CarId CarId, EmployerId EmployerI
 }
 
 /// <summary> Обновлен ответственный менеджер машины </summary>
-public sealed class CarManagerChanged(CarId carId, EmployerId NewManagerId, EmployerId OldManagerId, EmployerId AdminId) : IDomainEvent
+public sealed record CarManagerChanged(CarId CarId, EmployerId NewManagerId, EmployerId OldManagerId, EmployerId AdminId) : IDomainEvent
 {
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }
