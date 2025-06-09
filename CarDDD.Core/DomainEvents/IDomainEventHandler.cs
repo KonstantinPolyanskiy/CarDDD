@@ -1,2 +1,0 @@
-﻿namespace CarDDD.Core.DomainEvents;
-

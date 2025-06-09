@@ -4,14 +4,18 @@ using CarDDD.DomainServices.ValueObjects;
 
 namespace CarDDD.DomainServices.DomainAggregates.CartAggregate;
 
+/// <summary>
+/// Машина в контексте Корзины
+/// </summary>
+public readonly record struct Car(CarId CarId);
 
 /// <summary> Доменная модель корзины </summary>
 public sealed class Cart : AggregateRoot<Guid>
 {
     #region Fields
     
-    private readonly HashSet<CarId> _cars = new();
-    public IReadOnlyCollection<CarId> Cars => _cars;
+    private readonly HashSet<Car> _cars = new();
+    public IReadOnlyCollection<Car> Cars => _cars;
 
     /// <summary> Клиент, к которому привязана корзина </summary>
     public CustomerId CartOwnerId { get; private init; } 
@@ -45,19 +49,19 @@ public sealed class Cart : AggregateRoot<Guid>
     }
     
     /// <summary> Добавить машину в корзину </summary>
-    public AddCarToCartResult AddCar(CarId carId)
+    public AddCarToCartResult AddCar(Car car)
     {
         if (Ordered)
             return new AddCarToCartResult(CartAction.ErrorCartAlreadyOrdered);
-        
-        if (!_cars.Add(carId))
+
+        if (!_cars.Add(car))
             return new(CartAction.ErrorCarAlreadyInCart);
 
         AddDomainEvent(
             new AddedCarInCart(
                 CartId.From(EntityId),
                 CartOwnerId,
-                carId
+                car.CarId
             )
         );
 
@@ -65,19 +69,19 @@ public sealed class Cart : AggregateRoot<Guid>
     }
     
     /// <summary> Удалить машину в корзину </summary>
-    public RemoveCarFromCartResult RemoveCar(CarId carId)
+    public RemoveCarFromCartResult RemoveCar(Car car)
     {
         if (Ordered)
             return new RemoveCarFromCartResult(CartAction.ErrorCartAlreadyOrdered);
 
-        if (!_cars.Remove(carId))
+        if (!_cars.Remove(car))
             return new RemoveCarFromCartResult(CartAction.ErrorCarNotInCart);
 
         AddDomainEvent(
             new RemovedCarFromCart(
                 CartId.From(EntityId),
                 CartOwnerId,
-                carId
+                car.CarId
             )
         );
 
@@ -102,7 +106,7 @@ public sealed class Cart : AggregateRoot<Guid>
         AddDomainEvent(
             new CartOrdered(
                 CartId.From(EntityId),
-                OrderedCars,
+                OrderedCars.Select(c => c.CarId).ToList(),
                 CartOwnerId
             )
         );
@@ -131,7 +135,7 @@ public sealed class Cart : AggregateRoot<Guid>
         AddDomainEvent(
             new CartPurchased(
                 CartId.From(EntityId),
-                PurchasedCars,
+                PurchasedCars.Select(c => c.CarId).ToList(),
                 CartOwnerId
             )
         );
@@ -141,7 +145,7 @@ public sealed class Cart : AggregateRoot<Guid>
     
     public static Cart Restore(
         Guid id,
-        IEnumerable<CarId> cars,
+        IEnumerable<Car> cars,
         CustomerId cartOwnerId,
         bool ordered,
         bool readyForPurchase,
@@ -164,6 +168,6 @@ public sealed class Cart : AggregateRoot<Guid>
         return cart;
     }
     
-    private IReadOnlyList<CarId> OrderedCars => _cars.Select(car => car).ToList();
-    private IReadOnlyList<CarId> PurchasedCars => OrderedCars;
+    private IReadOnlyList<Car> OrderedCars => _cars.Select(car => car).ToList();
+    private IReadOnlyList<Car> PurchasedCars => OrderedCars;
 }

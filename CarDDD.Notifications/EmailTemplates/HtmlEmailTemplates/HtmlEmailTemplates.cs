@@ -15,9 +15,9 @@ public sealed class CarCreatedWithoutPhotoHtmlTemplate :
 }
 
 public sealed class ConsumerOrderedCartInfoHtmlTemplate :
-    IEmailTemplate<ConsumerOrderedCartInfoEmailNotification>
+    IEmailTemplate<CustomerOrderedCartInfoEmailNotification>
 {
-    public IEmailMessage Create(ConsumerOrderedCartInfoEmailNotification m) =>
+    public IEmailMessage Create(CustomerOrderedCartInfoEmailNotification m) =>
         new HtmlEmailMessage(m.To(), "Ваш заказ оформлен", HtmlBody:
              $"""
              <p>{m.CustomerFullName}, спасибо за заказ!</p>

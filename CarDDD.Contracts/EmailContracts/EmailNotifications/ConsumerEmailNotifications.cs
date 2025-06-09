@@ -7,7 +7,7 @@ namespace CarDDD.Contracts.EmailContracts.EmailNotifications;
 /// Email на почту клиента о заказе корзины
 /// </summary>
 [RabbitRoute(RabbitEmail.NotifyExchange, RabbitEmail.RoutingPrefix + ".customer")]
-public record ConsumerOrderedCartInfoEmailNotification(string PurchaserEmail, string CustomerFullName, decimal TotalPrice, decimal TotalCount) : IEmailNotification
+public record CustomerOrderedCartInfoEmailNotification(string PurchaserEmail, string CustomerFullName, decimal TotalPrice, decimal TotalCount) : IEmailNotification
 {
     public string To() => PurchaserEmail;
 }

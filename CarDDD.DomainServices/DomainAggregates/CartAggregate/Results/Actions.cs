@@ -7,6 +7,7 @@ public enum CartAction
     ErrorCartAlreadyOrdered,
     
     ErrorCarAlreadyInCart,
+    ErrorCarIsNotAvailable,
     ErrorCarNotInCart,
 }
 
@@ -17,6 +18,8 @@ public enum OrderCartAction
     ErrorAlreadyOrdered,
 
     ErrorCartEmpty,
+    ErrorCarsMismatch,
+    ErrorSomeCarIsNotAvailable,
 }
 
 public enum PurchaseCartAction

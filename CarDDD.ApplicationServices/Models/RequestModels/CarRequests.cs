@@ -2,7 +2,7 @@
 
 namespace CarDDD.ApplicationServices.Models.RequestModels;
 
-public record AddNewCarRequest
+public record CreateCarRequest
 {
     public string Brand { get; init; } = string.Empty;
     public string Color { get; init; } = string.Empty;
@@ -16,7 +16,13 @@ public record AddNewCarRequest
     public byte[]? PhotoData { get; init; } = null;
 }
 
-public record UpdateCarRequest
+public record SellCarRequest
+{
+    public Guid CarId { get; init; } = Guid.Empty;
+    public Guid CustomerId { get; init; } = Guid.Empty;
+}
+
+public record EditCarRequest
 {
     public Guid CarId { get; init; }
     public string? Brand { get; init; }

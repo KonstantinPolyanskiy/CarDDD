@@ -3,6 +3,7 @@ using CarDDD.DomainServices.DomainAggregates.CarAggregate.Results;
 using CarDDD.DomainServices.DomainAggregates.CartAggregate;
 using CarDDD.DomainServices.DomainAggregates.CartAggregate.Results;
 using CarDDD.DomainServices.Specifications;
+using Car = CarDDD.DomainServices.DomainAggregates.CarAggregate.Car;
 
 namespace CarDDD.DomainServices.Services;
 
@@ -14,6 +15,7 @@ public interface ICarDomainService
 {
     public CreateCarResult CreateCar(CreateCarSpec s);
     public UpdateCarResult UpdateCar(Car car, UpdateCarSpec s);
+    public SellCarResult SellCar(Car car, SellCarSpec s);
 }
 
 /// <summary>
@@ -26,6 +28,6 @@ public interface ICartDomainService
     public AddCarToCartResult AddCar(Cart cart, AddCarCartSpec s);
     public RemoveCarFromCartResult RemoveCar(Cart cart, RemoveCarCartSpec s);
 
-    public OrderCartResult OrderCart(Cart cart);
+    public OrderCartResult OrderCart(Cart cart, OrderCartSpec s);
     public DomainCartService.CartPurchaseResult PurchaseCart(Cart cart, PurchaseCartSpec s);
 }

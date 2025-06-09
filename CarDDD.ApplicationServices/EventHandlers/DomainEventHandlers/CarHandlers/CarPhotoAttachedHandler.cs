@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace CarDDD.ApplicationServices.EventHandlers.DomainEventHandlers.CarHandlers;
 
-public class CarPhotoAttachedHandler(IPhotoReader tempReader, IPhotoWriter mainWriter, ILogger<CarPhotoAttachedHandler> log) : IDomainEventHandler<CarPhotoAttached>
+public class CarPhotoAttachedHandler(ITemporaryPhotoStorage tempReader, IMainPhotoStorage mainWriter, ILogger<CarPhotoAttachedHandler> log) : IDomainEventHandler<CarPhotoAttached>
 {
     public async Task HandleAsync(CarPhotoAttached @event, CancellationToken ct = default)
     {
         var saved = false;
-        var photoData = await tempReader.ReadOneAsync(@event.PhotoId.Value, ct);
+        var photoData = await tempReader.ReadAsync(@event.PhotoId.Value, ct);
         if (photoData != null)
             saved = await mainWriter.WriteAsync(photoData, ct);
         

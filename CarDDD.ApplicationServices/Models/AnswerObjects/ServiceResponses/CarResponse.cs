@@ -6,38 +6,23 @@ namespace CarDDD.ApplicationServices.Models.AnswerObjects.ServiceResponses;
 
 public record CarInfo
 {
-    public CarInfo() {}
-    public CarInfo(Car car)
-    {
-        Id = car.EntityId;
-        
-        Brand = car.Brand;
-        Color = car.Color;
-        Price = car.Price;
-        Mileage = car.Mileage;
-        Condition = car.Condition;
-        Condition = car.Condition;
-        IsAvailable = car.IsAvailable;
-        Mileage = car.PreviousOwner.Mileage;
-    }
-    public Guid? Id { get; set; }
+    public Guid Id { get; set; }
     
     public string? Brand { get; set; } 
     public string? Color { get; set; } 
-    public decimal? Price { get; set; } 
+    public decimal? Price { get; set; }
+    public int? Mileage { get; set; }
     
+        
     public Condition? Condition { get; set; }
     public bool? IsAvailable { get; set; }
     
-    public string? PreviousOwnerName { get; set; }
-    public int? Mileage { get; set; }
-    
-    public UserInfo? Manager { get; set; }
-    
-    public UserInfo? Purchaser { get; set; }
-    
-    public PhotoInfo? Photo { get; set; }
+    public Guid? ManagerId { get; set; }
+    public Guid? PhotoId { get; set; }
+    public string? PhotoUrl { get; set; }
 }
+
+
 
 public record UserInfo
 {

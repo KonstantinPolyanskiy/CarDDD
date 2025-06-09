@@ -1,7 +1,5 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.Core", "CarDDD.Core\CarDDD.Core.csproj", "{6E693CA1-7DC3-4405-AE91-859C9B59FEE1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.Infrastructure", "CarDDD.Infrastructure\CarDDD.Infrastructure.csproj", "{E924EAC4-9409-4336-849A-E03E1EAC69D6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.Settings", "CarDDD.Settings\CarDDD.Settings.csproj", "{7DDE26A2-87D1-4678-B455-485AFBC63202}"
@@ -14,16 +12,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.DomainServices", "Ca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.ApplicationServices", "CarDDD.ApplicationServices\CarDDD.ApplicationServices.csproj", "{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarDDD.Api", "CarDDD.Api\CarDDD.Api.csproj", "{3A50EAAD-74F6-43D9-B3BA-EBB57682007D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6E693CA1-7DC3-4405-AE91-859C9B59FEE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E693CA1-7DC3-4405-AE91-859C9B59FEE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E693CA1-7DC3-4405-AE91-859C9B59FEE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E693CA1-7DC3-4405-AE91-859C9B59FEE1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E924EAC4-9409-4336-849A-E03E1EAC69D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E924EAC4-9409-4336-849A-E03E1EAC69D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E924EAC4-9409-4336-849A-E03E1EAC69D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,5 +44,9 @@ Global
 		{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B30A65F-A85D-49E3-B976-FAEAAB308CCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A50EAAD-74F6-43D9-B3BA-EBB57682007D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A50EAAD-74F6-43D9-B3BA-EBB57682007D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A50EAAD-74F6-43D9-B3BA-EBB57682007D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A50EAAD-74F6-43D9-B3BA-EBB57682007D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

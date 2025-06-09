@@ -1,9 +1,9 @@
-﻿using CarDDD.DomainServices.DomainAggregates.CarAggregate;
-using CarDDD.DomainServices.DomainAggregates.CarAggregate.Results;
+﻿using CarDDD.DomainServices.DomainAggregates.CarAggregate.Results;
 using CarDDD.DomainServices.DomainAggregates.CartAggregate;
 using CarDDD.DomainServices.DomainAggregates.CartAggregate.Results;
 using CarDDD.DomainServices.Specifications;
 using CarDDD.DomainServices.ValueObjects;
+using Car = CarDDD.DomainServices.DomainAggregates.CartAggregate.Car;
 
 namespace CarDDD.DomainServices.Services;
 
@@ -21,16 +21,31 @@ public class DomainCartService : ICartDomainService
 
     public AddCarToCartResult AddCar(Cart cart, AddCarCartSpec s)
     {
-        return cart.AddCar(s.CarId);
+        if (!s.Car.IsAvailable)
+            return new AddCarToCartResult(CartAction.ErrorCarIsNotAvailable);
+        
+        return cart.AddCar(new Car(s.Car.CarId));
     }
 
     public RemoveCarFromCartResult RemoveCar(Cart cart, RemoveCarCartSpec s)
     {
-        return cart.RemoveCar(s.CarId);
+        return cart.RemoveCar(new Car(s.Car.CarId));
     }
 
-    public OrderCartResult OrderCart(Cart cart)
+    public OrderCartResult OrderCart(Cart cart, OrderCartSpec s)
     {
+        // Проверяем что машины в корзине и переданные совпадают
+        var matching = MatchCartCarsWithCars(
+            s.Cars.Select(c => new Car(c.CarId)).ToList(),
+            cart.Cars.ToList()
+        );
+        if (!matching.match)
+            return new OrderCartResult(OrderCartAction.ErrorCarsMismatch);
+
+        // Проверяем что каждая заказываемая машина доступна
+        if (s.Cars.Any(x => !x.IsAvailable))
+            return new OrderCartResult(OrderCartAction.ErrorSomeCarIsNotAvailable);
+        
         return cart.Order();
     }
 
@@ -39,7 +54,10 @@ public class DomainCartService : ICartDomainService
         var carSells = new Dictionary<CarId, SellCarResult>();
 
         // Проверяем что машины в корзине и переданные совпадают
-        var matching = MatchCartCarsWithSaleCars(s.CarsToSell, cart.Cars.ToList());
+        var matching = MatchCartCarsWithCars(
+            s.CarsToSell.Select(c => new Car(c.CarId)).ToList(),
+            cart.Cars.ToList()
+        );
         if (!matching.match)
             return matching.outcome;
         
@@ -48,10 +66,6 @@ public class DomainCartService : ICartDomainService
         if (purchased.Status is not PurchaseCartAction.Success)
             return new CartPurchaseResult(purchased, EmptySellResults);
 
-        // Корзина успешно оплачена - продаем каждую машину
-        foreach (var domainCar in s.CarsToSell)
-            carSells[CarId.From(domainCar.EntityId)] = domainCar.Sell(cart.CartOwnerId);
-        
         return new CartPurchaseResult(purchased, carSells);
     }
 
@@ -61,19 +75,16 @@ public class DomainCartService : ICartDomainService
     {
         public PurchaseCartResult PurchaseResult { get; } = purchaseResult ?? throw new ArgumentNullException(nameof(purchaseResult));
 
-        /// <summary>
-        /// Результат продажи для каждой DomainAggregates.CarAggregate.Care cref="Car.Sell(Customer)"/>
-        /// </summary>
         public IReadOnlyDictionary<CarId, SellCarResult> SellResults { get; } = sellResults ?? throw new ArgumentNullException(nameof(sellResults));
     }
 
     /// <summary>
-    /// Проверка что переданные <see cref="DomainAggregates.CarAggregate.Car"/> в точности совпадают с <see cref="Cart.Cars"/> по идентификатору 
+    /// Проверка, что переданные <see cref="DomainAggregates.CarAggregate.Car"/> в точности совпадают с <see cref="Cart.Cars"/> по идентификатору 
     /// </summary>
-    private static (CartPurchaseResult outcome, bool match) MatchCartCarsWithSaleCars(IReadOnlyList<Car> carsToSale, IReadOnlyList<CarId> cartCars)
+    private static (CartPurchaseResult outcome, bool match) MatchCartCarsWithCars(IReadOnlyList<Car> carsToSale, IReadOnlyList<Car> cartCars)
     {
-        var domainIds = new HashSet<Guid>(carsToSale.Select(dc => dc.EntityId));
-        var cartIds = new HashSet<Guid>(cartCars.Select(id => id.Value));
+        var domainIds = new HashSet<Guid>(carsToSale.Select(dc => dc.CarId.Value));
+        var cartIds = new HashSet<Guid>(cartCars.Select(id => id.CarId.Value));
 
         if (!domainIds.SetEquals(cartIds))
         {

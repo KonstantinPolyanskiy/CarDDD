@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text;
-using CarDDD.Core.AnswerObjects.Result;
-using CarDDD.Settings.RabbitSettings;
+using CarDDD.ApplicationServices.Models.AnswerObjects.Result;
+using CarDDD.ApplicationServices.Publishers;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 

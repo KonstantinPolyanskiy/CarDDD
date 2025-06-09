@@ -1,7 +1,7 @@
-﻿using CarDDD.DomainServices.DomainAggregates.CarAggregate;
-using CarDDD.DomainServices.DomainAggregates.CarAggregate.Results;
+﻿using CarDDD.DomainServices.DomainAggregates.CarAggregate.Results;
 using CarDDD.DomainServices.Specifications;
 using CarDDD.DomainServices.ValueObjects;
+using Car = CarDDD.DomainServices.DomainAggregates.CarAggregate.Car;
 
 namespace CarDDD.DomainServices.Services;
 
@@ -79,5 +79,10 @@ public class DomainCarService : ICarDomainService
         }
             
         return new UpdateCarResult(UpdateCarAction.Success);
+    }
+
+    public SellCarResult SellCar(Car car, SellCarSpec s)
+    {
+        return car.Sell(s.CustomerId);
     }
 }
