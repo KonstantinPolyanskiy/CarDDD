@@ -34,7 +34,7 @@ public class CarQueryService(ICarRepositoryReader carsReader, IPhotoStorage phot
         return Result<CarInfo>.Success(result);
     }
 
-    public async Task<Result<FiltratedCarsInfo>> CarByIdFiltersAsync(CarFilters criteria)
+    public async Task<Result<FiltratedCarsInfo>> CarByFiltersAsync(CarFilters criteria)
     {
         var carQuery = await carsReader.CarsQueryAsync();
         

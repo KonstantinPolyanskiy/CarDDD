@@ -34,25 +34,22 @@ public class DomainCartService : ICartDomainService
 
     public OrderCartResult OrderCart(Cart cart, OrderCartSpec s)
     {
-        // Проверяем что машины в корзине и переданные совпадают
-        var matching = MatchCartCarsWithCars(
-            s.Cars.Select(c => new Car(c.CarId)).ToList(),
-            cart.Cars.ToList()
-        );
-        if (!matching.match)
+        var cartIds = cart.Cars.Select(c => c.CarId).ToHashSet();
+        var specIds = s.Cars.Select(c => c.CarId).ToHashSet();
+
+        if (!cartIds.SetEquals(specIds))
             return new OrderCartResult(OrderCartAction.ErrorCarsMismatch);
 
-        // Проверяем что каждая заказываемая машина доступна
-        if (s.Cars.Any(x => !x.IsAvailable))
+        if (s.Cars.Any(c => !c.IsAvailable))
             return new OrderCartResult(OrderCartAction.ErrorSomeCarIsNotAvailable);
-        
+
         return cart.Order();
     }
 
     public CartPurchaseResult PurchaseCart(Cart cart, PurchaseCartSpec s)
     {
         var carSells = new Dictionary<CarId, SellCarResult>();
-
+        
         // Проверяем что машины в корзине и переданные совпадают
         var matching = MatchCartCarsWithCars(
             s.CarsToSell.Select(c => new Car(c.CarId)).ToList(),

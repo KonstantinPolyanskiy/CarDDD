@@ -57,5 +57,4 @@ public record AttachCarPhotoSpec
 public record AssignCarManagerSpec
 {
     public required Employer AssignmentManager { get; init; }
-    
 }

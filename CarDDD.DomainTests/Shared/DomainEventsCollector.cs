@@ -4,7 +4,7 @@ using CarDDD.DomainServices.DomainAggregates;
 
 namespace CarDDD.DomainTests.Shared;
 
-public class DomainEventsCollector
+public static class DomainEventsCollector
 {
     public static IReadOnlyList<IDomainEvent> GetEvents(AggregateRoot<Guid> aggr)
         => aggr.GetType()
